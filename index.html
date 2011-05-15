@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Lorem ipsum</title>
+		<link rel="stylesheet" media="all" href="synth.css" />
+	</head>
+	<body>
+		<script src="base64.js"></script>
+		<script src="octet_stream.js"></script>
+		<script src="wav.js"></script>
+		<script src="synthesizer.js"></script>
+		<script>
+		window.onload = function ()
+		{
+			var synth = new Synthesizer(22050, document.getElementsByTagName("body")[0]);
+		}
+		</script>
+	</body>
+</html>
