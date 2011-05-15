@@ -1,0 +1,85 @@
+html, body
+{
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+}
+
+div.keyboard
+{
+	/* Frame of the keyboard. */
+	width: 90%;
+	height: 80%;
+	padding: 4% 0% 4% 4%;
+	border-radius: 10px; /* Nice rounded corner. */
+	background-color: black; /* That's for older browsers */
+	background: -webkit-linear-gradient(#000, #555); /* Linear gradient for WebKit... */
+	background: -moz-linear-gradient(100% 100% 90deg, #555, #000); /* ...and for Firefox */
+}
+
+div.key
+{
+	/* Common properties of keys. */
+	position: relative;
+	float: left;
+	margin: 0px;
+	padding: 0px;
+	border: solid 2px #303030;
+	border-radius: 4px;
+	background: solid white;
+	/* Do some animation when the key is pressed or released. */
+	transition: all 0.1s ease-out;
+	-moz-transition: all 0.1s ease-out;
+	-webkit-transition: all 0.1s ease-out;
+}
+
+div.key p
+{
+	/* Caption of the key should be displayed at the bottom. */
+	position: absolute;
+	width: 100%;
+	bottom: 5%;
+	margin: 0px;
+	padding: 0px;
+	font-size: 80%;
+	text-align: center;
+}
+
+div.white
+{
+	width: 4.5%;
+	height: 90%;
+	z-index: 1;
+	background-color: white;
+	background: -webkit-linear-gradient(#fff, #eee);
+	background: -moz-linear-gradient(100% 100% 90deg, #eee, #fff);
+	color: black;
+}
+
+div.black
+{
+	width: 3%;
+	height: 60%;
+	margin: 0px -2% 0px -2%;
+	z-index: 2;
+	background-color: black;
+	background: -webkit-linear-gradient(#000, #333);
+	background: -moz-linear-gradient(100% 100% 90deg, #333, #000);
+	color: white;
+}
+
+/**/ div.key:hover, /* This is just for debugging. */
+div.pressed
+{
+	box-shadow: 0px 0px 5px 2px #cef; /* Make the key glow. */
+	border-color: #eff;
+	background-color: #aef;
+	background: -webkit-linear-gradient(#9cf, #cef);
+	background: -moz-linear-gradient(100% 100% 90deg, #cef, #9cf);
+	color: black;
+	transform: scale(0.95, 0.95);
+	-webkit-transform: scale(0.95, 0.95);
+	-moz-transform: scale(0.95, 0.95);
+}
+
