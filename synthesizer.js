@@ -17,15 +17,18 @@ function SynthKey(wav, key_code, is_black)
 	div.className = "key " + (is_black ? "black" : "white");
 	div.appendChild(p);
 
-	div.addEventListener("mousedown", function () { key.press(); }, true);
-	div.addEventListener("mouseup", function () { key.release(); }, true);
+	div.addEventListener("click", function () { key.pressAndRelease(); }, true);
 
 	this.audio = audio;
 	this.ui = div;
+	this.is_pressed = false;
 }
 
 SynthKey.prototype.press = function ()
 {
+	if (this.is_pressed)
+		return;
+	this.is_pressed = true;
 	this.audio.play();
 	if (this.ui.className.substr(-8) != "pressed")
 		this.ui.className += " pressed";
@@ -33,8 +36,18 @@ SynthKey.prototype.press = function ()
 
 SynthKey.prototype.release = function ()
 {
+	if (!this.is_pressed)
+		return;
 	this.audio.pause();
 	this.ui.className = this.ui.className.replace(/ pressed/g, "");
+	this.is_pressed = false;
+}
+
+SynthKey.prototype.pressAndRelease = function ()
+{
+	var key = this;
+	this.press();
+	setTimeout(function () { key.release(); }, 700);
 }
 
 function Synthesizer(samples_per_sec, keyboard_parent)
