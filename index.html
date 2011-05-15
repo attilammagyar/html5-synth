@@ -12,7 +12,10 @@
 		<script>
 		window.onload = function ()
 		{
-			var synth = new Synthesizer(22050, document.getElementsByTagName("body")[0]);
+			var synth = new Synthesizer(
+				(window.screen.width > 800) ? 22050 : 8000,
+				document.getElementsByTagName("body")[0]
+			);
 		}
 		</script>
 	</body>
