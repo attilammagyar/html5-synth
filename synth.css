@@ -15,9 +15,13 @@
 		height: 80%;
 		padding: 4% 0% 4% 4%;
 		border-radius: 10px; /* Nice rounded corner. */
-		background-color: black; /* That's for older browsers */
-		background: -webkit-linear-gradient(#000, #555); /* Linear gradient for WebKit... */
-		background: -moz-linear-gradient(100% 100% 90deg, #555, #000); /* ...and for Firefox */
+		background-color: black; /* That's for browsers not supporting gradients. */
+
+		/* Now look at this messs. */
+		background: -webkit-gradient(linear, left top, left bottom, from(#000), to(#555));
+		background: -webkit-linear-gradient(#000, #555);
+		background: -o-linear-gradient(#000, #555);
+		background: -moz-linear-gradient(100% 100% 90deg, #555, #000);
 	}
 
 	div.key
@@ -34,6 +38,8 @@
 		transition: all 0.1s ease-out;
 		-moz-transition: all 0.1s ease-out;
 		-webkit-transition: all 0.1s ease-out;
+		-o-transition: all 0.1s ease-out;
+		-ms-transition: all 0.1s ease-out;
 	}
 
 	div.key p
@@ -54,7 +60,9 @@
 		height: 90%;
 		z-index: 1;
 		background-color: white;
+		background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#eee));
 		background: -webkit-linear-gradient(#fff, #eee);
+		background: -o-linear-gradient(#fff, #eee);
 		background: -moz-linear-gradient(100% 100% 90deg, #eee, #fff);
 		color: black;
 	}
@@ -66,7 +74,9 @@
 		margin: 0px -2% 0px -2%;
 		z-index: 2;
 		background-color: black;
+		background: -webkit-gradient(linear, left top, left bottom, from(#000), to(#333));
 		background: -webkit-linear-gradient(#000, #333);
+		background: -o-linear-gradient(#000, #333);
 		background: -moz-linear-gradient(100% 100% 90deg, #333, #000);
 		color: white;
 	}
@@ -77,7 +87,9 @@
 		box-shadow: 0px 0px 5px 2px #cef; /* Make the key glow. */
 		border-color: #eff;
 		background-color: #aef;
+		background: -webkit-gradient(linear, left top, left bottom, from(#9cf), to(#cef));
 		background: -webkit-linear-gradient(#9cf, #cef);
+		background: -o-linear-gradient(#9cf, #cef);
 		background: -moz-linear-gradient(100% 100% 90deg, #cef, #9cf);
 		color: black;
 		transform: scale(0.95, 0.95);
