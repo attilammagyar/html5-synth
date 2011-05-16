@@ -88,7 +88,7 @@ SynthKey.prototype.pressAndRelease = function ()
 function Synthesizer(samples_per_sec, keyboard_parent)
 {
 	var first_note_freq = 220,  // 1 octave below normal A
-		last_note_freq = 880.5, // 1 octave abowe normal A
+		last_note_freq = 880.5, // 1 octave above normal A
 								// with a threshold for
 								// floating point ops
 
@@ -121,7 +121,7 @@ function Synthesizer(samples_per_sec, keyboard_parent)
 					this.generateSamples(
 						samples_per_sec,
 						note_freq,
-						0.8, 0.2
+						0.85, 0.15
 					),
 					Math.ceil(note_freq * 2)
 				)
@@ -172,9 +172,12 @@ Synthesizer.prototype.generateSamples = function (
 		amplitude = 32766 / 4,
 		freqpi = freq * Math.PI,
 		freqpi2 = freqpi * 2,
+		freqpi4 = freqpi * 4,
 		period_duration = 1 / freq,
 		samples = [],
-		time, sin, sqr;
+		time,
+		sin, sin_below, sin_above,
+		sqr, sqr_below, sqr_above;
 
 	for (
 		time = 0;
@@ -182,8 +185,17 @@ Synthesizer.prototype.generateSamples = function (
 		time += sample_delta_time
 	)
 	{
-		sin = Math.sin(time * freqpi2);
+		sin = Math.sin(time * freqpi2),
+		sin_above = Math.sin(time * freqpi4),
+		sin_below = Math.sin(time * freqpi);
+
 		sqr = (sin > 0) ? 1 : -1;
+		sqr_above = (sin_above > 0) ? 1 : -1;
+		sqr_below = (sin_below > 0) ? 1 : -1;
+
+		sin = 0.7 * sin + 0.15 * sin_above + 0.15 * sin_below;
+		sqr = 0.7 * sqr + 0.15 * sqr_above + 0.15 * sqr_below;
+
 		samples.push(Math.round(
 			amplitude * (
 				sin_multiplier * sin
