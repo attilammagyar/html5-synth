@@ -35,11 +35,11 @@
 		border-radius: 4px;
 		background: solid white;
 		/* Do some animation when the key is pressed or released. */
-		transition: all 0.1s ease-out;
-		-moz-transition: all 0.1s ease-out;
-		-webkit-transition: all 0.1s ease-out;
-		-o-transition: all 0.1s ease-out;
-		-ms-transition: all 0.1s ease-out;
+		transition: all 0.15s ease-out;
+		-moz-transition: all 0.15s ease-out;
+		-webkit-transition: all 0.15s ease-out;
+		-o-transition: all 0.15s ease-out;
+		-ms-transition: all 0.15s ease-out;
 	}
 
 	div.key p
@@ -54,7 +54,7 @@
 		text-align: center;
 	}
 
-	div.white
+	div.white.key
 	{
 		width: 4.5%;
 		height: 90%;
@@ -67,7 +67,7 @@
 		color: black;
 	}
 
-	div.black
+	div.black.key
 	{
 		width: 3%;
 		height: 60%;
@@ -81,8 +81,8 @@
 		color: white;
 	}
 
-	/**/ div.key:hover, /* This is just for debugging. */
-	div.pressed
+/*/ div.key:hover, /* This is just for debugging. */
+	div.pressed.key
 	{
 		box-shadow: 0px 0px 5px 2px #cef; /* Make the key glow. */
 		border-color: #eff;
