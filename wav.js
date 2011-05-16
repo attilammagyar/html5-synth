@@ -24,9 +24,9 @@ function WavFile(samples_per_sec, samples, repeat_times)
 				dummy_sample: [4, 0]
 			}
 		},
-		tmp, i, j, l, t;
+		buffer, i, j, l, t;
 
-	tmp = new OctetStream();
+	buffer = new OctetStream();
 	for (i in headers)
 	{
 		if (!headers.hasOwnProperty(i))
@@ -37,32 +37,32 @@ function WavFile(samples_per_sec, samples, repeat_times)
 				continue;
 			if (headers[i][j][0] == 4)
 			{
-				tmp.append32(headers[i][j][1]);
+				buffer.append32(headers[i][j][1]);
 			}
 			else
 			{
-				tmp.append16(headers[i][j][1]);
+				buffer.append16(headers[i][j][1]);
 			}
 		}
 	}
-	this._headers = base64_encode(tmp.octets);
+	this._headers = base64_encode(buffer.octets);
 
-	for (i = 0, l = samples3.length, tmp.clear(); i != l; ++i)
+	for (i = 0, l = samples3.length, buffer.clear(); i != l; ++i)
 	{
-		tmp.append16(samples3[i]);
+		buffer.append16(samples3[i]);
 	}
-	this._body = base64_encode(tmp.octets);
+	this._body = base64_encode(buffer.octets);
 
 	this._repeat_body = Math.max(0, (repeat_times - (repeat_times % 3)) / 3);
 
-	for (i = 0, t = repeat_times % 3, tmp.clear(); i != t; ++i)
+	for (i = 0, t = repeat_times % 3, buffer.clear(); i != t; ++i)
 	{
 		for (j = 0, l = samples.length; j != l; ++j)
 		{
-			tmp.append16(samples[j]);
+			buffer.append16(samples[j]);
 		}
 	}
-	this._tail = base64_encode(tmp.octets);
+	this._tail = base64_encode(buffer.octets);
 }
 
 WavFile.prototype.toBase64String = function ()
