@@ -1,4 +1,12 @@
-function SynthKey(wav, key_code, is_black)
+/**
+ * SynthKey object represents one key of the synthesizer.
+ *
+ * @param String sample_url  URL of the sound file.
+ * @param String key_code    Character on the computer
+ *                           keyboard mapped to this key.
+ * @param Boolean is_black   Color of the key.
+ */
+function SynthKey(sample_url, key_code, is_black)
 {
 	var div = document.createElement("div"),
 		p = document.createElement("p"),
@@ -6,8 +14,7 @@ function SynthKey(wav, key_code, is_black)
 		source = document.createElement("source"),
 		key = this;
 
-	source.src = "data:audio/x-wav;base64," + wav.toBase64String();
-	delete wav;
+	source.src = sample_url;
 
 	audio.appendChild(source);
 	audio.loop = true;
@@ -17,13 +24,22 @@ function SynthKey(wav, key_code, is_black)
 	div.className = "key " + (is_black ? "black" : "white");
 	div.appendChild(p);
 
-	div.addEventListener("click", function () { key.pressAndRelease(); }, true);
+	div.addEventListener(
+		"click",
+		function () { key.pressAndRelease(); },
+		true
+	);
 
 	this.audio = audio;
 	this.ui = div;
 	this.is_pressed = false;
 }
 
+/**
+ * Play the sound associated with the key.
+ *
+ * @return void
+ */
 SynthKey.prototype.press = function ()
 {
 	if (this.is_pressed)
@@ -34,15 +50,26 @@ SynthKey.prototype.press = function ()
 		this.ui.className += " pressed";
 }
 
+/**
+ * Stop playing any sound.
+ *
+ * @return void
+ */
 SynthKey.prototype.release = function ()
 {
 	if (!this.is_pressed)
 		return;
 	this.audio.pause();
-	this.ui.className = this.ui.className.replace(/ pressed/g, "");
+	this.ui.className =
+		this.ui.className.replace(/ pressed/g, "");
 	this.is_pressed = false;
 }
 
+/**
+ * Keep a key pressed for a limited amount of time.
+ *
+ * @return void
+ */
 SynthKey.prototype.pressAndRelease = function ()
 {
 	var key = this;
@@ -50,75 +77,141 @@ SynthKey.prototype.pressAndRelease = function ()
 	setTimeout(function () { key.release(); }, 700);
 }
 
+/**
+ * Synthesizer object can generate audio samples and
+ * associate them with musical keyboard keys.
+ *
+ * @param Number samples_per_sec      Sampling rate.
+ * @param DOMElement keyboard_parent  DOM object containing
+ *                                    the keyboard.
+ */
 function Synthesizer(samples_per_sec, keyboard_parent)
 {
-	var first_note_freq = 220, // one octave below normal A (440 Hz)
-		last_note_freq = 880.5, // one octave abow normal A with a threshold
-								// for floating point operations
+	var first_note_freq = 220,  // 1 octave below normal A
+		last_note_freq = 880.5, // 1 octave abowe normal A
+								// with a threshold for
+								// floating point ops
 
-		freq_multiplier = Math.exp(Math.log(2) * 1 / 12), // 12th root of 2
+		freq_multiplier = Math.exp(Math.log(2) * 1 / 12),
 
-					//  A# C#D# F#G#A# C#D# F#G#
-					// a bc d ef g a bc d ef g a
-		key_codes =  "YSXCFVGBNJMKQ2WE4R5TZ7U8I",
+				//    A# C#D# F#G#A# C#D# F#G#
+				//   a bc d ef g a bc d ef g a
+		key_codes = "ZSXCFVGBNJMKQ2WE4R5TY7U8I",
 		key_colors = "1011010110101011010110101",
+		//key_codes =  "YSXCFVGBNJMKQ2WE4R5TZ7U8I",
+		//key_colors = "1011010110101011010110101",
 		keyboard = document.createElement("div"),
 		synthesizer = this,
-		note_freq, i, key, key_code; // temporary variables
+		keys = { },
+		note_freq, i, key, key_url, key_code;
 
 	keyboard.className = "keyboard";
 	keyboard_parent.appendChild(keyboard);
-	this.keyboard = keyboard;
 
-	this.samples_per_sec = samples_per_sec;
-
-	document.addEventListener("keydown", function (e) { synthesizer.press(e.keyCode); }, true);
-	document.addEventListener("keyup", function (e) { synthesizer.release(e.keyCode); }, true);
-
-	this.keys = { };
-	for (i = 0, note_freq = first_note_freq; note_freq < last_note_freq; note_freq *= freq_multiplier, ++i)
+	for (
+		i = 0, note_freq = first_note_freq;
+		note_freq < last_note_freq;
+		note_freq *= freq_multiplier, ++i
+	)
 	{
+		key_url = "data:audio/x-wav;base64,"
+			+ (
+				new WavFile(
+					samples_per_sec,
+					this.generateSamples(
+						samples_per_sec,
+						note_freq,
+						0.8, 0.2
+					),
+					Math.ceil(note_freq * 2)
+				)
+			).toBase64String();
 		key_code = key_codes.charCodeAt(i);
 		key = new SynthKey(
-			new WavFile(
-				samples_per_sec,
-				this.generateSamples(note_freq, 0.95, 0.05),
-				Math.ceil(note_freq * 2)
-			),
+			key_url,
 			key_code,
 			key_colors.charAt(i) == "0"
 		);
-		this.keys[key_code] = key;
+		keys[key_code] = key;
 		keyboard.appendChild(key.ui);
 	}
+
+	document.addEventListener(
+		"keydown",
+		function (e) { synthesizer.press(e.keyCode); },
+		true
+	);
+	document.addEventListener(
+		"keyup",
+		function (e) { synthesizer.release(e.keyCode); },
+		true
+	);
+
+	this.keyboard = keyboard;
+	this.keys = keys;
 }
 
-Synthesizer.prototype.generateSamples = function (freq, sin_multiplier, sqr_multiplier)
+/**
+ * Generate one period of wave samples. The wave is a sum
+ * of a sinusoid and a square wave.
+ *
+ * @param Number samples_per_sec  Frequency of sampling.
+ * @param Number freq             Frequency of the wave.
+ * @param Number sin_multiplier   Amount of sinusoid wave.
+ * @param Number sqr_multiplier   Amount of square wave.
+ * @return Array                  Repeatable samples.
+ */
+Synthesizer.prototype.generateSamples = function (
+	samples_per_sec,
+	freq,
+	sin_multiplier,
+	sqr_multiplier
+)
 {
-	var sample_freq = 1 / this.samples_per_sec,
-		amplitude = 32766/4,
-		freqpi2 = freq * 2 * Math.PI,
+	var sample_delta_time = 1 / samples_per_sec,
+		amplitude = 32766 / 4,
+		freqpi = freq * Math.PI,
+		freqpi2 = freqpi * 2,
 		period_duration = 1 / freq,
 		samples = [],
 		time, sin, sqr;
 
-	for (time = 0; time < period_duration; time += sample_freq)
+	for (
+		time = 0;
+		time < period_duration;
+		time += sample_delta_time
+	)
 	{
 		sin = Math.sin(time * freqpi2);
 		sqr = (sin > 0) ? 1 : -1;
 		samples.push(Math.round(
-			amplitude * (sin_multiplier * sin + sqr_multiplier * sqr)
+			amplitude * (
+				sin_multiplier * sin
+				+ sqr_multiplier * sqr
+			)
 		));
 	}
 	return samples;
 }
 
+/**
+ * Notify the Synthesizer about a key press.
+ *
+ * @param Number key_code  PC keyboard key code.
+ * @return void
+ */
 Synthesizer.prototype.press = function (key_code)
 {
 	if (this.keys[key_code])
 		this.keys[key_code].press();
 }
 
+/**
+ * Notify the Synthesizer about releasing a PC key.
+ *
+ * @param Number key_code  PC keyboard key code.
+ * @return void
+ */
 Synthesizer.prototype.release = function (key_code)
 {
 	if (this.keys[key_code])

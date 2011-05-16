@@ -1,3 +1,13 @@
+/**
+ * WavFile constructor. To make playback loop easier to the
+ * browser, samples can be repeated.
+ *
+ * @param Number samples_per_sec  Number of samples
+ *                                in a second.
+ * @param Array samples           Repeatable samples.
+ * @param Number repeat_times     How many times to repeat
+ *                                the samples.
+ */
 function WavFile(samples_per_sec, samples, repeat_times)
 {
 	var samples3 = samples.concat(samples).concat(samples),
@@ -5,7 +15,7 @@ function WavFile(samples_per_sec, samples, repeat_times)
 		headers = {
 			RIFF: {
 				chunk_id: [4, 0x46464952], // "RIFF"
-				chunk_size: [4, 4 + 0x18 + 8 + sample_count * 2],
+				chunk_size: [4, 36 + sample_count * 2],
 				type: [4, 0x45564157] // "WAVE"
 			},
 			fmt: {
@@ -24,9 +34,10 @@ function WavFile(samples_per_sec, samples, repeat_times)
 				dummy_sample: [4, 0]
 			}
 		},
-		buffer, i, j, l, t;
+		buffer = new OctetStream(),
+		i, j, l, t; // loop variables
 
-	buffer = new OctetStream();
+	// encoding headers
 	for (i in headers)
 	{
 		if (!headers.hasOwnProperty(i))
@@ -47,15 +58,21 @@ function WavFile(samples_per_sec, samples, repeat_times)
 	}
 	this._headers = base64_encode(buffer.octets);
 
-	for (i = 0, l = samples3.length, buffer.clear(); i != l; ++i)
+	// encoding repeatable body
+	buffer.clear();
+	for (i = 0, l = samples3.length; i != l; ++i)
 	{
 		buffer.append16(samples3[i]);
 	}
 	this._body = base64_encode(buffer.octets);
 
-	this._repeat_body = Math.max(0, (repeat_times - (repeat_times % 3)) / 3);
+	// how many times to repeat body
+	this._repeat_body = Math.max(
+		0, (repeat_times - (repeat_times % 3)) / 3);
 
-	for (i = 0, t = repeat_times % 3, buffer.clear(); i != t; ++i)
+	// encoding tail
+	buffer.clear();
+	for (i = 0, t = repeat_times % 3; i != t; ++i)
 	{
 		for (j = 0, l = samples.length; j != l; ++j)
 		{
@@ -65,9 +82,17 @@ function WavFile(samples_per_sec, samples, repeat_times)
 	this._tail = base64_encode(buffer.octets);
 }
 
+/**
+ * Generate a base64 representation of the binary RIFF file.
+ *
+ * @return String
+ */
 WavFile.prototype.toBase64String = function ()
 {
 	var i, l, ret = this._headers, body = this._body;
+	// To be efficient, doubling the length of the string
+	// in each iteration.
+	// http://google.com/search?q=shift-and-add
 	for (i = this._repeat_body; i != 0;)
 	{
 		if (i & 1)
