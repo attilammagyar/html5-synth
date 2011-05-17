@@ -1,23 +1,16 @@
 /**
  * SynthKey object represents one key of the synthesizer.
  *
- * @param String sample_url  URL of the sound file.
- * @param String key_code    Character on the computer
- *                           keyboard mapped to this key.
- * @param Boolean is_black   Color of the key.
+ * @param Sound sound      URL of the sound file.
+ * @param String key_code  Character on the computer
+ *                         keyboard mapped to this key.
+ * @param Boolean is_black Color of the key.
  */
-function SynthKey(sample_url, key_code, is_black)
+function SynthKey(sound, key_code, is_black)
 {
 	var div = document.createElement("div"),
 		p = document.createElement("p"),
-		audio = document.createElement("audio"),
-		source = document.createElement("source"),
 		key = this;
-
-	source.src = sample_url;
-
-	audio.appendChild(source);
-	audio.loop = true;
 
 	p.innerHTML = String.fromCharCode(key_code);
 
@@ -34,7 +27,7 @@ function SynthKey(sample_url, key_code, is_black)
 		true
 	);
 
-	this.audio = audio;
+	this.sound = sound;
 	this.ui = div;
 	this.is_pressed = false;
 }
@@ -49,7 +42,7 @@ SynthKey.prototype.press = function ()
 	if (this.is_pressed)
 		return;
 	this.is_pressed = true;
-	this.audio.play();
+	this.sound.play();
 	this.ui.className = this.pressed_css;
 }
 
@@ -62,7 +55,7 @@ SynthKey.prototype.release = function ()
 {
 	if (!this.is_pressed)
 		return;
-	this.audio.pause();
+	this.sound.stop();
 	this.ui.className = this.released_css;
 	this.is_pressed = false;
 }
@@ -80,8 +73,8 @@ SynthKey.prototype.pressAndRelease = function ()
 }
 
 /**
- * Synthesizer object can generate audio samples and
- * associate them with musical keyboard keys.
+ * Synthesizer object can generate sounds and associate
+ * them with musical keyboard keys.
  *
  * @param Number samples_per_sec      Sampling rate.
  * @param DOMElement keyboard_parent  DOM object containing
@@ -94,6 +87,7 @@ function Synthesizer(samples_per_sec, keyboard_parent)
 								// with a threshold for
 								// floating point ops
 
+		// 12th root of 2
 		freq_multiplier = Math.exp(Math.log(2) * 1 / 12),
 
 				//    A# C#D# F#G#A# C#D# F#G#
@@ -105,7 +99,7 @@ function Synthesizer(samples_per_sec, keyboard_parent)
 		keyboard = document.createElement("div"),
 		synthesizer = this,
 		keys = { },
-		note_freq, i, key, key_url, key_code;
+		note_freq, i, key, sound, key_code, key_is_black;
 
 	keyboard.className = "keyboard";
 	keyboard_parent.appendChild(keyboard);
@@ -116,24 +110,14 @@ function Synthesizer(samples_per_sec, keyboard_parent)
 		note_freq *= freq_multiplier, ++i
 	)
 	{
-		key_url = "data:audio/x-wav;base64,"
-			+ (
-				new WavFile(
-					samples_per_sec,
-					this.generateSamples(
-						samples_per_sec,
-						note_freq,
-						0.85, 0.15
-					),
-					Math.ceil(note_freq * 1)
-				)
-			).toBase64String();
-		key_code = key_codes.charCodeAt(i);
-		key = new SynthKey(
-			key_url,
-			key_code,
-			key_colors.charAt(i) == "0"
+		sound = new Sound(
+			samples_per_sec,
+			note_freq,
+			0.85, 0.15
 		);
+		key_code = key_codes.charCodeAt(i);
+		key_is_black = key_colors.charAt(i) == "0";
+		key = new SynthKey(sound, key_code, key_is_black);
 		keys[key_code] = key;
 		keyboard.appendChild(key.ui);
 	}
@@ -151,61 +135,6 @@ function Synthesizer(samples_per_sec, keyboard_parent)
 
 	this.keyboard = keyboard;
 	this.keys = keys;
-}
-
-/**
- * Generate one period of wave samples. The wave is a sum
- * of a sinusoid and a square wave.
- *
- * @param Number samples_per_sec  Frequency of sampling.
- * @param Number freq             Frequency of the wave.
- * @param Number sin_multiplier   Amount of sinusoid wave.
- * @param Number sqr_multiplier   Amount of square wave.
- * @return Array                  Repeatable samples.
- */
-Synthesizer.prototype.generateSamples = function (
-	samples_per_sec,
-	freq,
-	sin_multiplier,
-	sqr_multiplier
-)
-{
-	var sample_delta_time = 1 / samples_per_sec,
-		amplitude = 32766 / 4,
-		freqpi = freq * Math.PI,
-		freqpi2 = freqpi * 2,
-		freqpi4 = freqpi * 4,
-		period_duration = 1 / freq,
-		samples = [],
-		time,
-		sin, sin_below, sin_above,
-		sqr, sqr_below, sqr_above;
-
-	for (
-		time = 0;
-		time < period_duration;
-		time += sample_delta_time
-	)
-	{
-		sin = Math.sin(time * freqpi2),
-		sin_above = Math.sin(time * freqpi4),
-		sin_below = Math.sin(time * freqpi);
-
-		sqr = (sin > 0) ? 1 : -1;
-		sqr_above = (sin_above > 0) ? 1 : -1;
-		sqr_below = (sin_below > 0) ? 1 : -1;
-
-		sin = 0.7 * sin + 0.15 * sin_above + 0.15 * sin_below;
-		sqr = 0.7 * sqr + 0.15 * sqr_above + 0.15 * sqr_below;
-
-		samples.push(Math.round(
-			amplitude * (
-				sin_multiplier * sin
-				+ sqr_multiplier * sqr
-			)
-		));
-	}
-	return samples;
 }
 
 /**
