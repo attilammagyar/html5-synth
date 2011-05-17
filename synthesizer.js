@@ -21,7 +21,11 @@ function SynthKey(sample_url, key_code, is_black)
 
 	p.innerHTML = String.fromCharCode(key_code);
 
-	div.className = "key " + (is_black ? "black" : "white");
+	this.released_css = "key "
+		+ (is_black ? "black" : "white");
+	this.pressed_css = this.released_css + " pressed";
+
+	div.className = this.released_css;
 	div.appendChild(p);
 
 	div.addEventListener(
@@ -46,8 +50,7 @@ SynthKey.prototype.press = function ()
 		return;
 	this.is_pressed = true;
 	this.audio.play();
-	if (this.ui.className.substr(-8) != "pressed")
-		this.ui.className += " pressed";
+	this.ui.className = this.pressed_css;
 }
 
 /**
@@ -60,8 +63,7 @@ SynthKey.prototype.release = function ()
 	if (!this.is_pressed)
 		return;
 	this.audio.pause();
-	this.ui.className =
-		this.ui.className.replace(/ pressed/g, "");
+	this.ui.className = this.released_css;
 	this.is_pressed = false;
 }
 
@@ -214,8 +216,9 @@ Synthesizer.prototype.generateSamples = function (
  */
 Synthesizer.prototype.press = function (key_code)
 {
-	if (this.keys[key_code])
-		this.keys[key_code].press();
+	var key = this.keys[key_code];
+	if (key)
+		key.press();
 }
 
 /**
@@ -226,7 +229,8 @@ Synthesizer.prototype.press = function (key_code)
  */
 Synthesizer.prototype.release = function (key_code)
 {
-	if (this.keys[key_code])
-		this.keys[key_code].release();
+	var key = this.keys[key_code];
+	if (key)
+		key.release();
 }
 
