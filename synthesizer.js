@@ -125,7 +125,7 @@ function Synthesizer(samples_per_sec, keyboard_parent)
 						note_freq,
 						0.85, 0.15
 					),
-					Math.ceil(note_freq * 2)
+					Math.ceil(note_freq * 1)
 				)
 			).toBase64String();
 		key_code = key_codes.charCodeAt(i);
