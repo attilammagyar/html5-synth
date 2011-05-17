@@ -11,7 +11,7 @@
 	div.keyboard
 	{
 		/* Frame of the keyboard. */
-		height: 90%;
+		height: 95%;
 		margin: 1%;
 		padding: 5% 0% 0% 10%;
 		border-radius: 10px; /* Nice rounded corner. */
@@ -22,6 +22,32 @@
 		background: -webkit-linear-gradient(#000, #555);
 		background: -o-linear-gradient(#000, #555);
 		background: -moz-linear-gradient(100% 100% 90deg, #555, #000);
+	}
+
+	div.keyboard form
+	{
+		margin: 2%;
+	}
+	div.keyboard label
+	{
+		color: #ccc;
+		padding: 10px;
+	}
+	div.keyboard input
+	{
+		margin: 0px 10px 0px 0;
+		width: 30%;
+		height: 10px;
+		color: #ccc;
+		background: #111;
+		-webkit-transition: all 0.2s ease-out;
+		-o-transition: all 0.2s ease-out;
+		-mozilla-transition: all 0.2s ease-out;
+		-ms-transition: all 0.2s ease-out;
+	}
+	div.keyboard input:disabled
+	{
+		opacity: 0.1;
 	}
 
 	div.key
@@ -51,7 +77,7 @@
 	div.white.key
 	{
 		width: 6%;
-		height: 90%;
+		height: 65%;
 		z-index: 1;
 		background: white;
 		color: black;
@@ -60,7 +86,7 @@
 	div.black.key
 	{
 		width: 4%;
-		height: 60%;
+		height: 40%;
 		margin: 0px -2.5% 0px -2.5%;
 		z-index: 3;
 		background: black;

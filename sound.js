@@ -68,9 +68,10 @@ function Sound(
 				generateRepeatableSamples(
 					samples_per_sec,
 					freq,
-					0.85, 0.15
+					sin_multiplier,
+					sqr_multiplier
 				),
-				Math.ceil(freq * 3)
+				Math.ceil(freq * 2)
 			)
 		).toBase64String();
 	audio.loop = true;
