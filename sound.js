@@ -60,10 +60,9 @@ function Sound(
 		return samples;
 	}
 
-	var source = document.createElement("source"),
-		audio = document.createElement("audio");
+	var audio = new Audio();
 
-	source.src = "data:audio/x-wav;base64,"
+	audio.src = "data:audio/x-wav;base64,"
 		+ (
 			new WavFile(
 				samples_per_sec,
@@ -75,8 +74,6 @@ function Sound(
 				Math.ceil(freq * 1)
 			)
 		).toBase64String();
-
-	audio.appendChild(source);
 	audio.loop = true;
 
 	this.audio = audio;
