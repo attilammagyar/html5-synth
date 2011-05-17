@@ -71,7 +71,7 @@ function Sound(
 					freq,
 					0.85, 0.15
 				),
-				Math.ceil(freq * 1)
+				Math.ceil(freq * 3)
 			)
 		).toBase64String();
 	audio.loop = true;
