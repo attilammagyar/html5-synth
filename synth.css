@@ -62,7 +62,7 @@
 		width: 4%;
 		height: 60%;
 		margin: 0px -2.5% 0px -2.5%;
-		z-index: 2;
+		z-index: 3;
 		background: black;
 		color: white;
 	}
@@ -70,9 +70,17 @@
 /*/ div.key:hover, /* This is just for debugging. */
 	div.pressed.key
 	{
-		border-color: #eff;
-		background: #cef;
+		border-color: #cef;
+		background: #adf;
 		color: black;
+	}
+	div.pressed.white.key
+	{
+		z-index: 2;
+	}
+	div.pressed.black.key
+	{
+		z-index: 4;
 	}
 }
 @media screen and (max-width: 800px)
