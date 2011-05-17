@@ -6,7 +6,6 @@
  * @param Number freq             Frequency of the wave.
  * @param Number sin_multiplier   Amount of sinusoid wave.
  * @param Number sqr_multiplier   Amount of square wave.
- * @return void
  */
 function Sound(
 	samples_per_sec,
