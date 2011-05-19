@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>JavaScript synthesizer</title>
+		<link rel="stylesheet" media="all" href="synth.css" />
+	</head>
+	<body>
+		<script src="base64.js"></script>
+		<script src="octet_stream.js"></script>
+		<script src="wav.js"></script>
+		<script src="sound.js"></script>
+		<script src="synthesizer.js"></script>
+		<script>
+		window.onload = function ()
+		{
+			var synth = new Synthesizer(
+				(window.screen.width > 800) ? 22050 : 8000,
+				document.getElementsByTagName("body")[0]
+			);
+		}
+		</script>
+	</body>
+</html>
