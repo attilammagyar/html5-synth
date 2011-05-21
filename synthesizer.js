@@ -106,8 +106,8 @@ function Synthesizer(samples_per_sec, keyboard_parent)
 	{
 		var settings = document.createElement("form"),
 			inputs = [],
-			labels = ["Sin", "Sqr"],
-			values = [85, 15],
+			labels = ["Sin", "Sqr", "Saw"],
+			values = [75, 5, 20],
 			i, l, input, label, name;
 
 		settings.setAttribute("action", "#");
@@ -120,7 +120,7 @@ function Synthesizer(samples_per_sec, keyboard_parent)
 			input.setAttribute("type", "range");
 			input.setAttribute("name", name);
 			input.setAttribute("min", 0);
-			input.setAttribute("max", 300);
+			input.setAttribute("max", 200);
 			input.value = values[i];
 			input.addEventListener(
 				"change",
@@ -182,7 +182,7 @@ function Synthesizer(samples_per_sec, keyboard_parent)
 	this.key_colors = "1011010110101011010110101",
 	this.samples_per_sec = samples_per_sec;
 
-	this.settings = { sin: 85, sqr: 15 };
+	this.settings = { sin: 75, sqr: 5, saw: 20 };
 	this.update_settings_timeout = null;
 
 	this.keyboard = createKeyboard(keyboard_parent);
@@ -206,6 +206,7 @@ Synthesizer.prototype.generateSounds = function ()
 
 		sin = this.settings.sin / 100,
 		sqr = this.settings.sqr / 100,
+		saw = this.settings.saw / 100,
 		count = this.key_codes.length,
 
 		i, note_freq, sound, key_code;
@@ -219,7 +220,7 @@ Synthesizer.prototype.generateSounds = function ()
 		sound = new Sound(
 			this.samples_per_sec,
 			note_freq,
-			sin, sqr
+			sin, sqr, saw
 		);
 		key_code = this.key_codes.charCodeAt(i);
 		this.keys[key_code].replaceSound(sound);
@@ -243,15 +244,21 @@ Synthesizer.prototype.toggleSettingsForm = function (enabled)
  */
 Synthesizer.prototype.updateSettings = function ()
 {
-	var sin, sqr;
+	var sin, sqr, saw;
 	sin = Number(this.settings_inputs[0].value);
 	sqr = Number(this.settings_inputs[1].value);
-	if (sin != this.settings.sin || sqr != this.settings.sqr)
+	saw = Number(this.settings_inputs[2].value);
+	if (
+		sin != this.settings.sin
+		|| sqr != this.settings.sqr
+		|| saw != this.settings.saw
+	)
 	{
 		this.toggleSettingsForm(false);
 		this.update_settings_timeout = null;
 		this.settings.sin = sin;
 		this.settings.sqr = sqr;
+		this.settings.saw = saw;
 		this.generateSounds();
 		this.toggleSettingsForm(true);
 	}
