@@ -19,6 +19,7 @@ function Sound(
 	function generateRepeatableSamples(
 		samples_per_sec,
 		freq,
+		amplitude,
 		sin_multiplier,
 		sqr_multiplier,
 		saw_multiplier
@@ -27,7 +28,6 @@ function Sound(
 		var samples = [],
 			sample_delta_time = 1 / samples_per_sec,
 			period_duration = 1 / freq,
-			amplitude = 32766 / 4,
 			freqpi = freq * Math.PI,
 			freqpi2 = freqpi * 2,
 			freqpi4 = freqpi * 4,
@@ -52,43 +52,60 @@ function Sound(
 			sqr4 = (sin4 > 0) ? 1 : -1;
 
 			saw = time / period_duration,
-			saw2 = saw * 2 - Math.round(saw * 2),
-			saw4 = saw * 4 - Math.round(saw * 4);
+			saw2 = saw * 2 - Math.floor(saw * 2),
+			saw4 = saw * 4 - Math.floor(saw * 4);
 
 			sin = 0.8 * sin + 0.15 * sin2 + 0.05 * sin4;
 			sqr = 0.8 * sqr + 0.15 * sqr2 + 0.05 * sqr4;
 			saw = 0.8 * saw + 0.15 * saw2 + 0.05 * saw4;
 
-			samples.push(Math.round(
+			samples.push(
 				amplitude * (
 					sin_multiplier * sin
 					+ sqr_multiplier * sqr
 					+ saw_multiplier * saw
 				)
-			));
+			);
 		}
 		return samples;
 	}
 
-	var audio = new Audio();
-
-	audio.src = "data:audio/x-wav;base64,"
-		+ (
-			new WavFile(
+	// Depending on browser capabilities, true real time
+	// audio manipulation can be used.
+	if (RealtimeAudio.prototype.isAvailable())
+	{
+		this.audio = new RealtimeAudio(
+			samples_per_sec,
+			freq,
+			generateRepeatableSamples(
 				samples_per_sec,
-				generateRepeatableSamples(
-					samples_per_sec,
-					freq,
-					sin_multiplier,
-					sqr_multiplier,
-					saw_multiplier
-				),
-				Math.ceil(freq * 4)
+				freq,
+				1 / 4,
+				sin_multiplier,
+				sqr_multiplier,
+				saw_multiplier
 			)
-		).toBase64String();
-	audio.loop = true;
-
-	this.audio = audio;
+		);
+	}
+	else if (SimpleAudio.prototype.isAvailable())
+	{
+		this.audio = new SimpleAudio(
+			samples_per_sec,
+			freq,
+			generateRepeatableSamples(
+				samples_per_sec,
+				freq,
+				32766 / 4,
+				sin_multiplier,
+				sqr_multiplier,
+				saw_multiplier
+			)
+		);
+	}
+	else
+	{
+		throw "No audio backend is available.";
+	}
 }
 
 Sound.prototype.play = function ()
@@ -98,6 +115,11 @@ Sound.prototype.play = function ()
 
 Sound.prototype.stop = function ()
 {
-	this.audio.pause();
+	this.audio.stop();
+}
+
+Sound.prototype.die = function ()
+{
+	this.audio.die();
 }
 

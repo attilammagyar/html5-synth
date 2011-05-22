@@ -40,7 +40,7 @@ function SynthKey(key_code, is_black)
 SynthKey.prototype.replaceSound = function (new_sound)
 {
 	if (this.sound)
-		this.sound.stop();
+		this.sound.die();
 	this.sound = new_sound;
 }
 
