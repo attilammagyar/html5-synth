@@ -10,7 +10,7 @@
  */
 function WavFile(samples_per_sec, samples, repeat_times)
 {
-	var samples3 = samples.concat(samples).concat(samples),
+	var samples3,
 		sample_count = samples.length * repeat_times + 2,
 		headers = {
 			RIFF: {
@@ -36,6 +36,10 @@ function WavFile(samples_per_sec, samples, repeat_times)
 		},
 		buffer = new OctetStream(),
 		i, j, l, t; // loop variables
+
+	for (i = 0, l = samples.length; i != l; ++i)
+		samples[i] = Math.round(samples[i]);
+	samples3 = samples.concat(samples).concat(samples);
 
 	// encoding headers
 	for (i in headers)

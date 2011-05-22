@@ -1,36 +1,41 @@
 /**
  * Sound represents an audio file. The wave used is a sum
- * of a sinusoid and a square wave.
+ * of a sinusoid, a square and a saw wave.
  *
  * @param Number samples_per_sec  Frequency of sampling.
  * @param Number freq             Frequency of the wave.
  * @param Number sin_multiplier   Amount of sinusoid wave.
  * @param Number sqr_multiplier   Amount of square wave.
+ * @param Number saw_multiplier   Amount of saw wave.
  */
 function Sound(
 	samples_per_sec,
 	freq,
 	sin_multiplier,
-	sqr_multiplier
+	sqr_multiplier,
+	saw_multiplier
 )
 {
 	function generateRepeatableSamples(
 		samples_per_sec,
 		freq,
+		amplitude,
 		sin_multiplier,
-		sqr_multiplier
+		sqr_multiplier,
+		saw_multiplier
 	)
 	{
 		var samples = [],
 			sample_delta_time = 1 / samples_per_sec,
 			period_duration = 1 / freq,
-			amplitude = 32766 / 4,
 			freqpi = freq * Math.PI,
 			freqpi2 = freqpi * 2,
 			freqpi4 = freqpi * 4,
+			freqpi8 = freqpi * 8,
 			time,
-			sin, sin_below, sin_above,
-			sqr, sqr_below, sqr_above;
+			sin, sin2, sin4,
+			sqr, sqr2, sqr4,
+			saw, saw2, saw4;
 
 		for (
 			time = 0;
@@ -39,44 +44,68 @@ function Sound(
 		)
 		{
 			sin = Math.sin(time * freqpi2),
-			sin_above = Math.sin(time * freqpi4),
-			sin_below = Math.sin(time * freqpi);
+			sin2 = Math.sin(time * freqpi4),
+			sin4 = Math.sin(time * freqpi8);
 
-			sqr = (sin > 0) ? 1 : -1;
-			sqr_above = (sin_above > 0) ? 1 : -1;
-			sqr_below = (sin_below > 0) ? 1 : -1;
+			sqr = (sin > 0) ? 1 : -1,
+			sqr2 = (sin2 > 0) ? 1 : -1,
+			sqr4 = (sin4 > 0) ? 1 : -1;
 
-			sin = 0.7 * sin + 0.15 * sin_above + 0.15 * sin_below;
-			sqr = 0.7 * sqr + 0.15 * sqr_above + 0.15 * sqr_below;
+			saw = time / period_duration,
+			saw2 = saw * 2 - Math.floor(saw * 2),
+			saw4 = saw * 4 - Math.floor(saw * 4);
 
-			samples.push(Math.round(
+			sin = 0.8 * sin + 0.15 * sin2 + 0.05 * sin4;
+			sqr = 0.8 * sqr + 0.15 * sqr2 + 0.05 * sqr4;
+			saw = 0.8 * saw + 0.15 * saw2 + 0.05 * saw4;
+
+			samples.push(
 				amplitude * (
 					sin_multiplier * sin
 					+ sqr_multiplier * sqr
+					+ saw_multiplier * saw
 				)
-			));
+			);
 		}
 		return samples;
 	}
 
-	var audio = new Audio();
-
-	audio.src = "data:audio/x-wav;base64,"
-		+ (
-			new WavFile(
+	// Depending on browser capabilities, true real time
+	// audio manipulation can be used.
+	if (RealtimeAudio.prototype.isAvailable())
+	{
+		this.audio = new RealtimeAudio(
+			samples_per_sec,
+			freq,
+			generateRepeatableSamples(
 				samples_per_sec,
-				generateRepeatableSamples(
-					samples_per_sec,
-					freq,
-					sin_multiplier,
-					sqr_multiplier
-				),
-				Math.ceil(freq * 2)
+				freq,
+				1 / 4,
+				sin_multiplier,
+				sqr_multiplier,
+				saw_multiplier
 			)
-		).toBase64String();
-	audio.loop = true;
-
-	this.audio = audio;
+		);
+	}
+	else if (SimpleAudio.prototype.isAvailable())
+	{
+		this.audio = new SimpleAudio(
+			samples_per_sec,
+			freq,
+			generateRepeatableSamples(
+				samples_per_sec,
+				freq,
+				32766 / 4,
+				sin_multiplier,
+				sqr_multiplier,
+				saw_multiplier
+			)
+		);
+	}
+	else
+	{
+		throw "No audio backend is available.";
+	}
 }
 
 Sound.prototype.play = function ()
@@ -86,6 +115,11 @@ Sound.prototype.play = function ()
 
 Sound.prototype.stop = function ()
 {
-	this.audio.pause();
+	this.audio.stop();
+}
+
+Sound.prototype.die = function ()
+{
+	this.audio.die();
 }
 
