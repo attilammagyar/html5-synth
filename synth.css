@@ -59,7 +59,6 @@
 		padding: 0px;
 		border: solid 2px #303030;
 		border-radius: 4px;
-		background: solid white;
 	}
 
 	div.key p
@@ -109,10 +108,10 @@
 		z-index: 4;
 	}
 }
-@media screen and (max-width: 800px)
+@media screen and (max-width: 700px)
 {
 	div.key p
 	{
-		display: none; /* Hide keyboard mapping on touch based devices. */
+		display: none;
 	}
 }
