@@ -80,7 +80,7 @@ function Sound(
 			generateRepeatableSamples(
 				samples_per_sec,
 				freq,
-				1 / 4,
+				1 / 3,
 				sin_multiplier,
 				sqr_multiplier,
 				saw_multiplier
@@ -95,7 +95,7 @@ function Sound(
 			generateRepeatableSamples(
 				samples_per_sec,
 				freq,
-				32766 / 4,
+				32767 / 3,
 				sin_multiplier,
 				sqr_multiplier,
 				saw_multiplier
