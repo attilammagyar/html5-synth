@@ -38,7 +38,12 @@ function RealtimeAudio(samples_per_sec, freq, samples)
 
 RealtimeAudio.prototype.isAvailable = function ()
 {
-	var test_audio = new Audio();
+	var test_audio;
+
+	if (typeof(Audio) != 'function')
+		return false;
+
+	test_audio = new Audio();
 	return typeof(test_audio.mozSetup) == 'function'
 		&& typeof(test_audio.mozWriteAudio) ==  'function'
 		&& typeof(Float32Array) == 'function';
