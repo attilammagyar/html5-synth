@@ -6,7 +6,7 @@
  * @param Number freq             Frequency of the wave.
  * @param Number sin_multiplier   Amount of sinusoid wave.
  * @param Number sqr_multiplier   Amount of square wave.
- * @param Number saw_multiplier   Amount of saw wave.
+ * @param Number saw_multiplier   Amount of sawtooth wave.
  */
 function Sound(
 	samples_per_sec,
@@ -51,9 +51,10 @@ function Sound(
 			sqr2 = (sin2 > 0) ? 1 : -1,
 			sqr4 = (sin4 > 0) ? 1 : -1;
 
-			saw = time / period_duration,
-			saw2 = saw * 2 - Math.floor(saw * 2),
-			saw4 = saw * 4 - Math.floor(saw * 4);
+			saw = 2 * time / period_duration,
+			saw2 = (2 * saw) - Math.floor(2 * saw) - 1,
+			saw4 = (4 * saw) - Math.floor(4 * saw) - 1;
+			saw -= 1;
 
 			sin = 0.8 * sin + 0.15 * sin2 + 0.05 * sin4;
 			sqr = 0.8 * sqr + 0.15 * sqr2 + 0.05 * sqr4;
