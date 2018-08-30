@@ -23,7 +23,7 @@ function SimpleAudio(samples_per_sec, freq, samples)
 SimpleAudio.prototype.isAvailable = function ()
 {
 	return typeof(Audio) == 'function'
-		&& (new Audio()).hasOwnProperty('loop');
+		&& (new Audio()).loop !== undefined;
 }
 
 SimpleAudio.prototype.play = function ()
